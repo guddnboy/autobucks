@@ -1,9 +1,8 @@
 import { MemoryRouter as Router, Routes, Route } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 function Hello() {
   const [isOpenBrowser, setIsOpenBrowser] = useState<boolean>(false);
-  const [isDone, setIsDone] = useState<boolean>(false);
 
   const openBrowser = async () => {
     const isOpen = await window.api.openBrowser();
@@ -19,14 +18,15 @@ function Hello() {
       return false;
     }
     const isSubmit = await window.api.submit();
-
-    setIsDone(isSubmit);
     return isSubmit;
   };
 
   const closeBrowser = async () => {
-    const isClose = await window.api.closeBrowser();
-    return isClose;
+    await window.api.closeBrowser();
+  };
+
+  const quitApp = async () => {
+    await window.api.quitApp();
   };
 
   return (
@@ -35,11 +35,14 @@ function Hello() {
       <button type="button" onClick={openBrowser}>
         동의 페이지 접속하기
       </button>
-      <button type="submit" onClick={connectWifi}>
+      <button type="button" onClick={connectWifi}>
         전부 동의 및 연결
       </button>
       <button type="button" onClick={closeBrowser}>
         브라우저 닫기
+      </button>
+      <button type="button" onClick={quitApp}>
+        앱 종료
       </button>
     </div>
   );
