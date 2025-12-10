@@ -28,6 +28,14 @@ class PuppeteerManager {
     }
     return this.page!;
   }
+
+  async close() {
+    if (this.browser) {
+      await this.browser.close();
+      this.browser = null;
+      this.page = null;
+    }
+  }
 }
 
 export const puppeteerManager = PuppeteerManager.getInstance();
