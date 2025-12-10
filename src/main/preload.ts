@@ -21,6 +21,10 @@ export const electronHandler = {
     console.log('close 함수 실행');
     return ipcRenderer.invoke('close-browser');
   },
+  quitApp: async () => {
+    console.log('앱 종료');
+    return ipcRenderer.invoke('quit-app');
+  },
 };
 
 contextBridge.exposeInMainWorld('api', electronHandler);

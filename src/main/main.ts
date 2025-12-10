@@ -156,10 +156,16 @@ app.whenReady().then(() => {
 
   ipcMain.handle('check-all', async () => {
     const page = puppeteerManager.getPage();
+    const agreeElement: HTMLButtonElement | null =
+      document.querySelector('#agreement_agree');
+    const purposeElement: HTMLButtonElement | null =
+      document.querySelector('#purpose_agree');
+
+    if (!agreeElement || !purposeElement) return false;
 
     await page.evaluate(() => {
-      document.querySelector('#agreement_agree')?.click();
-      document.querySelector('#purpose_agree')?.click();
+      agreeElement.click();
+      purposeElement.click();
     });
 
     return true;
@@ -167,8 +173,12 @@ app.whenReady().then(() => {
 
   ipcMain.handle('submit', async () => {
     const page = puppeteerManager.getPage();
+    const submitButton: HTMLButtonElement | null =
+      document.querySelector('.kt_sb_btn');
+
+    if (!submitButton) return false;
     await page.evaluate(() => {
-      document.querySelector('.kt_sb_btn')?.click();
+      submitButton.click();
       return true;
     });
     return false;
@@ -177,6 +187,10 @@ app.whenReady().then(() => {
   ipcMain.handle('close-browser', async () => {
     await puppeteerManager.close();
     return true;
+  });
+
+  ipcMain.handle('quit-app', () => {
+    app.quit();
   });
 
   createWindow();
