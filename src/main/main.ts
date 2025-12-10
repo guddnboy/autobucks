@@ -127,21 +127,57 @@ app.whenReady().then(() => {
   });
   ipcMain.handle('open-browser', async () => {
     const page = await puppeteerManager.init();
-    await page.goto('https://naver.com');
+
+    if (!page) return false;
+
+    // 요청/리다이렉트 로깅
+    page.on('request', (request) => {
+      console.log('요청한 URL 주소:', request.url());
+    });
+
+    page.on('response', async (response) => {
+      const request = response.request();
+      const headers = response.headers();
+      const status = response.status();
+
+      console.log(`응답: ${request.url()} -> status ${status}`);
+
+      if (status === 302 && headers.location) {
+        console.log('리다이렉션 발생:', headers.location);
+        console.log('Captive Portal을 위한 새 페이지 열기...');
+      }
+    });
+
+    // 최초 접속
+    await page.goto('http://www.istarbucks.co.kr/util/wireless.do');
+
+    return true;
   });
 
-  ipcMain.handle('get-contents', async () => {
+  ipcMain.handle('check-all', async () => {
+    const page = puppeteerManager.getPage();
+
+    await page.evaluate(() => {
+      document.querySelector('#agreement_agree')?.click();
+      document.querySelector('#purpose_agree')?.click();
+    });
+
+    return true;
+  });
+
+  ipcMain.handle('submit', async () => {
     const page = puppeteerManager.getPage();
     await page.evaluate(() => {
-      const contents: string[] = [];
-      document
-        .querySelectorAll('.ContentHeaderSubView-module__news_box___dH9b3')
-        .forEach((element) => {
-          contents.push(element.innerText);
-        });
-      console.log(`contents: ${contents}`);
-      return contents;
+      document.querySelector('.kt_sb_btn')?.click();
+      return true;
     });
+    return false;
   });
+
+  ipcMain.handle('close-browser', async () => {
+    await puppeteerManager.close();
+    return true;
+  });
+
   createWindow();
 });
